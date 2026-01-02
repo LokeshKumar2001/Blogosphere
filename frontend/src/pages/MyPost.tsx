@@ -7,18 +7,32 @@ import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 5;
 
+interface Post {
+  _id: string;
+  title: string;
+  description: string;
+  status: "DRAFT" | "PUBLISHED";
+  createdAt: string;
+}
+
+interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  totalPosts: number;
+}
+
 const MyPost = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<Pagination>({
     totalPages: 1,
     currentPage: 1,
     totalPosts: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [publishing, setPublishing] = useState(null);
-  const [deleting, setDeleting] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -35,9 +49,13 @@ const MyPost = () => {
         }
       );
 
-      setPosts(res.data.data || []);
+      setPosts((res.data.data as Post[]) ?? []);
       setPagination(
-        res.data.pagination || { totalPages: 1, currentPage: 1, totalPosts: 0 }
+        (res.data.pagination as Pagination) ?? {
+          totalPages: 1,
+          currentPage: 1,
+          totalPosts: 0,
+        }
       );
     } catch (err) {
       console.error("Fetch posts error:", err);
@@ -51,10 +69,12 @@ const MyPost = () => {
     fetchPosts(page);
   }, [page]);
 
-  const handlePublish = async (postId) => {
+  const handlePublish = async (postId: string) => {
     if (!window.confirm("Publish this post?")) return;
+
     try {
       setPublishing(postId);
+
       await axios.patch(
         `${
           import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
@@ -62,6 +82,7 @@ const MyPost = () => {
         {},
         { withCredentials: true }
       );
+
       setPosts((prev) =>
         prev.map((post) =>
           post._id === postId ? { ...post, status: "PUBLISHED" } : post
@@ -75,16 +96,17 @@ const MyPost = () => {
     }
   };
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async (postId: string) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
+
     try {
       setDeleting(postId);
+
       await axios.delete(
         `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts/${postId}`,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
+
       setPosts((prev) => prev.filter((post) => post._id !== postId));
     } catch (err) {
       console.error("Delete error:", err);
@@ -100,7 +122,9 @@ const MyPost = () => {
         Loading your posts...
       </p>
     );
+
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+
   if (posts.length === 0)
     return (
       <p className="text-center mt-10 text-muted-foreground">No posts found.</p>
@@ -118,12 +142,15 @@ const MyPost = () => {
               {post.status}
             </Badge>
           </CardHeader>
+
           <CardContent>
             <p className="text-gray-700 mb-2">{post.description}</p>
+
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
                 Created: {new Date(post.createdAt).toLocaleDateString()}
               </span>
+
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -132,12 +159,14 @@ const MyPost = () => {
                 >
                   View
                 </Button>
+
                 <Button
                   size="sm"
                   onClick={() => navigate(`/author/posts/${post._id}`)}
                 >
                   Edit
                 </Button>
+
                 {post.status === "DRAFT" && (
                   <Button
                     size="sm"
@@ -148,6 +177,7 @@ const MyPost = () => {
                     {publishing === post._id ? "Publishing..." : "Publish"}
                   </Button>
                 )}
+
                 <Button
                   size="sm"
                   variant="destructive"
@@ -171,9 +201,11 @@ const MyPost = () => {
         >
           Prev
         </Button>
+
         <span className="text-sm text-muted-foreground">
           Page {pagination.currentPage} of {pagination.totalPages}
         </span>
+
         <Button
           variant="outline"
           disabled={page === pagination.totalPages}

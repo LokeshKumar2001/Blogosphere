@@ -11,21 +11,45 @@ import { useAuth } from "@/context/AuthContext";
 
 const PAGE_SIZE = 5;
 
+interface Author {
+  _id: string;
+}
+
+interface Post {
+  _id: string;
+  title: string;
+  description: string;
+  status: "DRAFT" | "PUBLISHED";
+  createdAt: string;
+  authorId: Author;
+  authorName: string;
+  likesCount: number;
+  commentsCount?: number;
+}
+
+interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  totalPosts: number;
+}
+
 const AllPosts = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<Pagination>({
     totalPages: 1,
     currentPage: 1,
     totalPosts: 0,
   });
   const [loading, setLoading] = useState(false);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
+
       const res = await axios.get(
         `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts`,
         {
@@ -36,26 +60,29 @@ const AllPosts = () => {
           withCredentials: true,
         }
       );
-      setPosts(res.data.data);
-      setPagination(res.data.pagination);
+
+      setPosts(res.data.data as Post[]);
+      setPagination(res.data.pagination as Pagination);
     } catch (err) {
-      console.log("Error fetching Post", err);
+      console.error("Error fetching posts", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const canEditPost = (post: never) => {
+  const canEditPost = (post: Post) => {
     if (!user) return false;
 
     if (user.role === "Admin") return true;
 
-    if (user.role === "Author" && post.authorId._id === user._id) return true;
+    if (user.role === "Author" && post.authorId._id === user._id) {
+      return true;
+    }
 
     return false;
   };
 
-  const updateStatus = async (postId: string, status: string) => {
+  const updateStatus = async (postId: string, status: Post["status"]) => {
     try {
       await axios.patch(
         `${
@@ -97,6 +124,7 @@ const AllPosts = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold">All Posts</h1>
       <Separator />
+
       {loading && (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -127,6 +155,7 @@ const AllPosts = () => {
             >
               <CardHeader className="flex flex-row items-start justify-between gap-4">
                 <CardTitle>{post.title}</CardTitle>
+
                 {canEditPost(post) && (
                   <div className="flex gap-2">
                     {post.status === "DRAFT" ? (
@@ -172,6 +201,7 @@ const AllPosts = () => {
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {post.description}
                 </p>
+
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                   <span>
                     By {post.authorName} •{" "}
@@ -195,7 +225,7 @@ const AllPosts = () => {
           ))}
         </div>
       )}
-      {/* Pagination */}
+
       <div className="flex justify-between items-center pt-6">
         <Button
           variant="outline"
@@ -204,9 +234,11 @@ const AllPosts = () => {
         >
           Prev
         </Button>
+
         <span className="text-sm text-muted-foreground">
           Page {pagination.currentPage} of {pagination.totalPages}
         </span>
+
         <Button
           variant="outline"
           disabled={page === pagination.totalPages}

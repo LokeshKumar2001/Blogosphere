@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "./../../public/blog.jpeg";
 import axios from "axios";
+import logo from "./../../public/blog.jpeg";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,9 @@ const Login = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -34,7 +35,8 @@ const Login = () => {
     const { email, password } = formData;
 
     if (!email || !password) {
-      return setErrorMessage("Email and password are required.");
+      setErrorMessage("Email and password are required.");
+      return;
     }
 
     try {
@@ -42,39 +44,45 @@ const Login = () => {
 
       const res = await axios.post(
         `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/login`,
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
+        { email, password },
+        { withCredentials: true }
       );
 
-      login(res.data.user);
+      const { user, success } = res.data;
 
-      if (res.data.success === true) {
-        toast.success("Login Successful");
-        const role = res.data.user.role;
+      if (!success || !user) {
+        throw new Error("Invalid login response");
+      }
 
-        if (role === "Admin") {
+      login(user);
+      toast.success("Login successful");
+
+      // Role-based redirect
+      switch (user.role) {
+        case "Admin":
           navigate("/admin");
-        } else if (role === "Author") {
+          break;
+        case "Author":
           navigate("/author");
-        } else {
-          toast.error("Invalid Credentials.");
-          navigate("/login");
-        }
+          break;
+        default:
+          navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "Login failed");
+      setErrorMessage(
+        error.response?.data?.message ||
+          error.message ||
+          "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 bg-white shadow-lg rounded-xl p-6">
+        {/* Left Section */}
         <div className="flex flex-col justify-center">
           <img
             src={logo}
@@ -87,10 +95,11 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Right Section */}
         <div>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
-              <Label className="py-0.5 mb-2">Email</Label>
+              <Label className="mb-1 block">Email</Label>
               <Input
                 name="email"
                 type="email"
@@ -101,7 +110,7 @@ const Login = () => {
             </div>
 
             <div>
-              <Label className="py-0.5 mb-2">Password</Label>
+              <Label className="mb-1 block">Password</Label>
               <Input
                 name="password"
                 type="password"
