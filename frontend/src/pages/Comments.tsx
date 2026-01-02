@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -18,23 +18,28 @@ interface Comment {
   createdAt: string;
 }
 
-const Comments = ({ postId }: { postId: string }) => {
+interface CommentsProps {
+  postId: string;
+}
+
+const Comments = ({ postId }: CommentsProps) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // 🔹 Fetch comments
   const fetchComments = async () => {
     try {
-      const res = await axios.get(
+      const res = await axios.get<{ data: Comment[] }>(
         `${
           import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
-        }/api/posts/${postId}/comments`
+        }/api/posts/${postId}/comments`,
+        { withCredentials: true }
       );
       setComments(res.data.data || []);
-    } catch {
+    } catch (error) {
       toast.error("Failed to load comments");
+      console.error(error);
     }
   };
 
@@ -42,7 +47,6 @@ const Comments = ({ postId }: { postId: string }) => {
     fetchComments();
   }, [postId]);
 
-  // 🔹 Add comment
   const handleAddComment = async () => {
     if (!content.trim()) return;
 
@@ -57,8 +61,9 @@ const Comments = ({ postId }: { postId: string }) => {
       );
       setContent("");
       fetchComments();
-    } catch {
-      toast.error("Failed to add comment");
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || "Failed to add comment");
     } finally {
       setLoading(false);
     }
@@ -75,12 +80,12 @@ const Comments = ({ postId }: { postId: string }) => {
         }/api/posts/${postId}/comments/${commentId}`,
         { withCredentials: true }
       );
-
       setComments((prev) =>
         prev.filter((comment) => comment._id !== commentId)
       );
       toast.success("Comment deleted");
-    } catch {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
       toast.error("Failed to delete comment");
     }
   };
@@ -90,7 +95,7 @@ const Comments = ({ postId }: { postId: string }) => {
       <h2 className="text-xl font-semibold">Comments</h2>
 
       {/* Add Comment */}
-      {user && (
+      {user ? (
         <div className="space-y-2">
           <Textarea
             placeholder="Write a comment..."
@@ -101,39 +106,37 @@ const Comments = ({ postId }: { postId: string }) => {
             {loading ? "Posting..." : "Post Comment"}
           </Button>
         </div>
-      )}
-
-      {!user && (
+      ) : (
         <p className="text-sm text-muted-foreground">Login to post a comment</p>
       )}
 
       {/* Comments List */}
-      {comments.length === 0 && (
+      {comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">No comments yet</p>
+      ) : (
+        comments.map((comment) => (
+          <Card key={comment._id} className="p-4 flex justify-between">
+            <div>
+              <p className="font-medium">{comment.author.username}</p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(comment.createdAt).toLocaleString()}
+              </p>
+              <p className="mt-2">{comment.content}</p>
+            </div>
+
+            {/* Delete button only for Admin or comment owner */}
+            {(user?.role === "Admin" || user?._id === comment.author._id) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDelete(comment._id)}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            )}
+          </Card>
+        ))
       )}
-
-      {comments.map((comment) => (
-        <Card key={comment._id} className="p-4 flex justify-between">
-          <div>
-            <p className="font-medium">{comment.username}</p>
-            <p className="text-sm text-muted-foreground">
-              {new Date(comment.createdAt).toLocaleString()}
-            </p>
-            <p className="mt-2">{comment.content}</p>
-          </div>
-
-          {/* Delete (Admin or Author) */}
-          {(user?.role === "Admin" || user?._id === comment.author._id) && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDelete(comment._id)}
-            >
-              <Trash2 className="h-4 w-4 text-red-500" />
-            </Button>
-          )}
-        </Card>
-      ))}
     </div>
   );
 };
