@@ -9,7 +9,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
@@ -21,13 +20,6 @@ const Navbar = () => {
       : "text-gray-600 hover:text-blue-600";
 
   const handleLogout = async () => {
-    // await axios.post(
-    //   "http://localhost:5000/api/auth/logout",
-    //   {},
-    //   {
-    //     withCredentials: true,
-    //   }
-    // );
     logout();
     navigate("/logout");
   };

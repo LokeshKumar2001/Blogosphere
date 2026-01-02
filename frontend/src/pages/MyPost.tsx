@@ -27,10 +27,13 @@ const MyPost = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("http://localhost:5000/api/posts/myPosts", {
-        params: { page: pageNumber, limit: PAGE_SIZE },
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts/myPosts`,
+        {
+          params: { page: pageNumber, limit: PAGE_SIZE },
+          withCredentials: true,
+        }
+      );
 
       setPosts(res.data.data || []);
       setPagination(
@@ -53,7 +56,9 @@ const MyPost = () => {
     try {
       setPublishing(postId);
       await axios.patch(
-        `http://localhost:5000/api/posts/${postId}/publish`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/posts/${postId}/publish`,
         {},
         { withCredentials: true }
       );
@@ -74,9 +79,12 @@ const MyPost = () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
     try {
       setDeleting(postId);
-      await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts/${postId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setPosts((prev) => prev.filter((post) => post._id !== postId));
     } catch (err) {
       console.error("Delete error:", err);

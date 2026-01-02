@@ -13,7 +13,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectGroup,
   SelectLabel,
 } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -63,7 +62,7 @@ const SignUp = () => {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/register`,
         {
           username,
           password,

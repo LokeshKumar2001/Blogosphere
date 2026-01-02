@@ -64,7 +64,7 @@ const AdminSidebar = () => {
   const { logout } = useAuth();
   const handleLogout = async () => {
     await axios.post(
-      "http://localhost:5000/api/auth/logout",
+      `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/logout`,
       {},
       {
         withCredentials: true,

@@ -26,13 +26,16 @@ const AllPosts = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/posts", {
-        params: {
-          page,
-          limit: PAGE_SIZE,
-        },
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts`,
+        {
+          params: {
+            page,
+            limit: PAGE_SIZE,
+          },
+          withCredentials: true,
+        }
+      );
       setPosts(res.data.data);
       setPagination(res.data.pagination);
     } catch (err) {
@@ -42,7 +45,7 @@ const AllPosts = () => {
     }
   };
 
-  const canEditPost = (post) => {
+  const canEditPost = (post: never) => {
     if (!user) return false;
 
     if (user.role === "Admin") return true;
@@ -55,7 +58,9 @@ const AllPosts = () => {
   const updateStatus = async (postId: string, status: string) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/users/posts/${postId}/status`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/users/posts/${postId}/status`,
         { status }
       );
 
@@ -69,9 +74,14 @@ const AllPosts = () => {
 
   const handleDelete = async (postId: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/posts/${postId}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/users/posts/${postId}`,
+        {
+          withCredentials: true,
+        }
+      );
 
       setPosts((prev) => prev.filter((p) => p._id !== postId));
     } catch (error) {

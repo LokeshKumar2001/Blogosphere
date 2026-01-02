@@ -24,9 +24,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/profile", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/users/profile`,
+          {
+            withCredentials: true,
+          }
+        );
         setUser(res.data.data);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/logout`,
         {},
         { withCredentials: true }
       );

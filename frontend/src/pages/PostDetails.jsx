@@ -19,7 +19,9 @@ const PostDetails = () => {
     const fetchPost = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/posts/${postId}`,
+          `${
+            import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+          }/api/posts/${postId}`,
           { withCredentials: true }
         );
         setPost(res.data.data);
@@ -48,7 +50,9 @@ const PostDetails = () => {
       setLikeLoading(true);
 
       const res = await axios.post(
-        `http://localhost:5000/api/posts/${postId}/like`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/posts/${postId}/like`,
         {},
         { withCredentials: true }
       );

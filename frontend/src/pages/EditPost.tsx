@@ -26,7 +26,9 @@ const EditPost = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:5000/api/posts/${postId}`,
+          `${
+            import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+          }/api/posts/${postId}`,
           { withCredentials: true }
         );
         const { title, description, tags, status } = res.data.data;
@@ -61,7 +63,7 @@ const EditPost = () => {
     try {
       setSaving(true);
       await axios.put(
-        `http://localhost:5000/api/posts/${postId}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts/${postId}`,
         {
           title: formData.title,
           description: formData.content,

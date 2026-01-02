@@ -28,7 +28,9 @@ const Comments = ({ postId }: { postId: string }) => {
   const fetchComments = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/posts/${postId}/comments`
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/posts/${postId}/comments`
       );
       setComments(res.data.data || []);
     } catch {
@@ -47,7 +49,9 @@ const Comments = ({ postId }: { postId: string }) => {
     try {
       setLoading(true);
       await axios.post(
-        `http://localhost:5000/api/posts/${postId}/comments`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/posts/${postId}/comments`,
         { content },
         { withCredentials: true }
       );
@@ -66,7 +70,9 @@ const Comments = ({ postId }: { postId: string }) => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/posts/${postId}/comments/${commentId}`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+        }/api/posts/${postId}/comments/${commentId}`,
         { withCredentials: true }
       );
 

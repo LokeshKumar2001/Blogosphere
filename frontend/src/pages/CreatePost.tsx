@@ -33,7 +33,7 @@ const CreatePost = () => {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/api/posts",
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/posts`,
         {
           title: formData.title,
           description: formData.content,

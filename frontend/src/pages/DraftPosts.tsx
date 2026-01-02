@@ -26,13 +26,16 @@ const DraftPosts = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("http://localhost:5000/api/draft/posts", {
-        params: {
-          page,
-          limit: PAGE_SIZE,
-        },
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/draft/posts`,
+        {
+          params: {
+            page,
+            limit: PAGE_SIZE,
+          },
+          withCredentials: true,
+        }
+      );
 
       setDrafts(res.data.data || []);
       setPagination(

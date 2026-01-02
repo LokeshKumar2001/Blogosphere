@@ -29,12 +29,15 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/users", {
-        params: {
-          search,
-        },
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/users`,
+        {
+          params: {
+            search,
+          },
+          withCredentials: true,
+        }
+      );
 
       setUsers(res.data.data);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

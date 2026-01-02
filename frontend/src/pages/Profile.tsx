@@ -30,9 +30,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/profile", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/users/profile`,
+          {
+            withCredentials: true,
+          }
+        );
 
         const user = res.data.data;
 
@@ -57,7 +60,7 @@ const Profile = () => {
       setSaving(true);
 
       const res = await axios.put(
-        "http://localhost:5000/api/users/profile",
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/users/profile`,
         formData,
         { withCredentials: true }
       );
