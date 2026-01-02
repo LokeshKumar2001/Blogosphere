@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
-import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import AuthorDashboard from "./pages/AuthorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -14,10 +13,12 @@ import MyPost from "./pages/MyPost";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import DraftPosts from "./pages/DraftPosts";
-import PostDetails from "./pages/PostDetails";
+
 import EditPost from "./pages/EditPost";
 import AdminLayout from "./pages/AdminLayout";
 import Users from "./pages/Users";
+import SignUp from "./pages/SignUp";
+import PostDetails from "./pages/PostDetails";
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,6 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <SignUp />,
   },
-
   {
     path: "/login",
     element: <Login />,
@@ -42,10 +42,9 @@ const router = createBrowserRouter([
     element: <Logout />,
   },
   {
-    path: "/api/posts/:postId",
+    path: "/posts/:postId", // Removed /api prefix for frontend route
     element: <PostDetails />,
   },
-
   {
     path: "/author",
     element: (
@@ -63,7 +62,10 @@ const router = createBrowserRouter([
         path: "create",
         element: <CreatePost />,
       },
-      { path: "posts/:postId", element: <EditPost /> },
+      {
+        path: "posts/:postId",
+        element: <EditPost />,
+      },
       {
         path: "posts",
         element: <AllPosts />,
@@ -76,7 +78,6 @@ const router = createBrowserRouter([
         path: "myPosts",
         element: <MyPost />,
       },
-
       {
         path: "profile",
         element: <Profile />,
@@ -96,7 +97,6 @@ const router = createBrowserRouter([
         index: true,
         element: <AdminDashboard />,
       },
-
       {
         path: "users",
         element: <Users />,
@@ -105,7 +105,6 @@ const router = createBrowserRouter([
         path: "posts",
         element: <AllPosts />,
       },
-
       {
         path: "profile",
         element: <Profile />,
@@ -113,6 +112,7 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
 function App() {
   return (
     <AuthProvider>

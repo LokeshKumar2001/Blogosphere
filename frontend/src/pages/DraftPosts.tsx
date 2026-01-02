@@ -7,16 +7,30 @@ import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 5;
 
+interface DraftPost {
+  _id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  status: "DRAFT" | "PUBLISHED";
+}
+
+interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  totalPosts: number;
+}
+
 const DraftPosts = () => {
-  const [drafts, setDrafts] = useState([]);
+  const [drafts, setDrafts] = useState<DraftPost[]>([]);
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<Pagination>({
     totalPages: 1,
     currentPage: 1,
     totalPosts: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -33,9 +47,9 @@ const DraftPosts = () => {
         }
       );
 
-      setDrafts(res.data.data || []);
+      setDrafts(res.data.data ?? []);
       setPagination(
-        res.data.pagination || {
+        res.data.pagination ?? {
           totalPages: 1,
           currentPage: 1,
           totalPosts: 0,

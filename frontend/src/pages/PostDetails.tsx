@@ -9,14 +9,28 @@ import { Button } from "@/components/ui/button";
 import Comments from "./Comments";
 import { Heart } from "lucide-react";
 
+interface Post {
+  _id: string;
+  title: string;
+  description: string;
+  authorName: string;
+  createdAt: string;
+  status?: string;
+  likesCount: number;
+  liked: boolean;
+  tags?: string[];
+}
+
 const PostDetails = () => {
-  const { postId } = useParams();
-  const [post, setPost] = useState(null);
+  const { postId } = useParams<{ postId: string }>();
+  const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
+      if (!postId) return; // Safety check
+
       try {
         const res = await axios.get(
           `${
@@ -34,6 +48,14 @@ const PostDetails = () => {
 
     fetchPost();
   }, [postId]);
+
+  if (!postId) {
+    return (
+      <p className="text-center mt-10 text-red-500">
+        Post ID is missing from the URL.
+      </p>
+    );
+  }
 
   if (loading) {
     return <p className="text-center mt-10">Loading post...</p>;
@@ -57,11 +79,11 @@ const PostDetails = () => {
         { withCredentials: true }
       );
 
-      setPost((prev) => ({
-        ...prev,
-        likesCount: res.data.likesCount,
-        liked: res.data.liked,
-      }));
+      setPost((prev) =>
+        prev
+          ? { ...prev, likesCount: res.data.likesCount, liked: res.data.liked }
+          : null
+      );
     } catch (error) {
       console.error("Like failed", error);
     } finally {
@@ -111,7 +133,7 @@ const PostDetails = () => {
               {post.likesCount}
             </Button>
 
-            {post.tags?.length > 0 && (
+            {post.tags?.length ? (
               <div className="flex gap-2">
                 {post.tags.map((tag) => (
                   <Badge key={tag} variant="secondary">
@@ -119,7 +141,7 @@ const PostDetails = () => {
                   </Badge>
                 ))}
               </div>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>

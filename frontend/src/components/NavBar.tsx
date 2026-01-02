@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 const Navbar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const navClass = ({ isActive }) =>
+  const navClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? "text-blue-600 font-semibold"
       : "text-gray-600 hover:text-blue-600";

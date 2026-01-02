@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "./../../public/blog.jpeg";
@@ -9,8 +9,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
 const Login = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginForm>({
     email: "",
     password: "",
   });
@@ -20,7 +25,7 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -28,7 +33,7 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -68,12 +73,15 @@ const Login = () => {
         default:
           navigate("/");
       }
-    } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message ||
-          error.message ||
-          "Login failed. Please try again."
-      );
+    } catch (err: unknown) {
+      // ✅ Type-safe error handling
+      if (axios.isAxiosError(err)) {
+        setErrorMessage(err.response?.data?.message || "Login failed");
+      } else if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -127,7 +135,8 @@ const Login = () => {
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <div className="flex items-center gap-2">
-                  <Spinner size={20} className="animate-spin" />
+                  {/* Spinner props fixed for SVG */}
+                  <Spinner className="h-5 w-5 animate-spin" />
                   Signing in...
                 </div>
               ) : (
